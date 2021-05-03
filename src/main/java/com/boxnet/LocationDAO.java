@@ -68,13 +68,6 @@ public class LocationDAO {
                         }
                     });
         }
-        /*
-        jt.update("insert into location (id, insertDate, latitude, longitude) values (?, ?, ?, ?)",
-                locationDTO.getId(),
-                locationDTO.getDate(),
-                locationDTO.getLatitude(),
-                locationDTO.getLongitude());
-         */
     }
 
 }
