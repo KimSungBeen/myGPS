@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.boxnet.Util.errorResult;
+import static com.boxnet.Util.getDate;
+
 @RestController
-public class ApiController {
-    final LocationDAO ud;
+public class LocationApiController {
+    final LocationDAO ld;
 
     // 모든 Location데이터가 저장되는 리스트
     final List<LocationDTO> allLocationDTOList = new ArrayList<>();
 
-    // Date format
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    public ApiController(LocationDAO ud) {
-        this.ud = ud;
+    public LocationApiController(LocationDAO ld) {
+        this.ld = ld;
     }
 
     /**
@@ -37,10 +37,7 @@ public class ApiController {
         try {
             LocationDTO locationDTO = new LocationDTO();
             locationDTO.setId(id);
-
-            Date time = new Date();
-            String timeStr = format.format(time);
-            locationDTO.setDate(timeStr);
+            locationDTO.setDate(getDate());
 
             locationDTO.setLatitude(latitude);
             locationDTO.setLongitude(longitude);
@@ -75,7 +72,7 @@ public class ApiController {
                 }
             }
 
-            ud.insertLocationDataList(insertLocationDTOList);
+            ld.insertLocationDataList(insertLocationDTOList);
 
             for (LocationDTO locationDTO : insertLocationDTOList) {
                 // insert된 Location데이터를, insert되지 않은 Location데이터 리스트에서 제거
@@ -99,7 +96,7 @@ public class ApiController {
         try {
             insertLocationData(id); // allLocationDTOList에서 파라미터id의 Location데이터를 insert
 
-            List<LocationDTO> locationDTOList = ud.selectLocationData(id);
+            List<LocationDTO> locationDTOList = ld.selectLocationData(id);
 
             if (locationDTOList.size() > 0) {
                 JsonArray jsonArray = new JsonArray();
@@ -162,14 +159,5 @@ public class ApiController {
             e.printStackTrace();
             return errorResult(result);
         }
-    }
-
-    /**
-     * Default Error Result
-     */
-    private String errorResult(JsonObject result) {
-        result.addProperty("resultMessage", "ERROR");
-        result.addProperty("resultCode", "2000");
-        return result.toString();
     }
 }
