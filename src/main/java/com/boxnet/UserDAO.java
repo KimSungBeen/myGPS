@@ -1,12 +1,7 @@
 package com.boxnet;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import static com.boxnet.Util.getDate;
 
@@ -21,23 +16,17 @@ public class UserDAO {
     /**
      * 유저 회원가입
      */
-    public String selectUser(String id, String sns) {
+    public UserDTO selectUser(String id, String sns) {
         System.out.println("# select " + id + " Data #");
-        return jt.query("select * from user where id = ? and sns = ?", new ResultSetExtractor<String>() {
-            @Override
-            public String extractData(ResultSet rs) throws SQLException, DataAccessException {
 
-                String id = rs.getString(1);
-                String sns = rs.getString(2);
-                String signUpDate = rs.getString(3);
+        UserDTO userDTO = new UserDTO();
+        return jt.query("select * from user where id = ? and sns = ?", (rs, rowNum) -> {
+            userDTO.setId(rs.getString("id"));
+            userDTO.setSns(rs.getString("sns"));
+            userDTO.setSignUpDate(rs.getString("signUpDate"));
 
-                if (id != null && sns != null && signUpDate != null) {
-                    return "SUCCESS";
-                } else {
-                    return "FAIL";
-                }
-            }
-        }, id, sns);
+            return userDTO;
+        }, id, sns).size() > 0 ? userDTO : null;
     }
 
     /**

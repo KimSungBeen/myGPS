@@ -14,17 +14,30 @@ public class LoginApiController {
         this.ud = ud;
     }
 
-    @RequestMapping(value = "/api/getUser", method = RequestMethod.GET)
+    @RequestMapping(value = "/api/login", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public String selectUser(@RequestParam(value = "id") String id,
+    public String startLogin(@RequestParam(value = "id") String id,
                              @RequestParam(value = "sns") String sns) {
         JsonObject result = new JsonObject();
 
         try {
-            ud.selectUser(id, sns);
+            UserDTO userDTO = ud.selectUser(id, sns);
 
-            result.addProperty("resultMessage", "SUCCESS");
-            result.addProperty("resultCode", "0000");
+            if (userDTO != null) {
+                JsonObject user = new JsonObject();
+                user.addProperty("id", userDTO.getId());
+                user.addProperty("sns", userDTO.getSns());
+                user.addProperty("signUpDate", userDTO.getSignUpDate());
+
+                result.addProperty("resultMessage", "SUCCESS");
+                result.addProperty("resultCode", "0000");
+                result.add("user", user);
+
+            } else {
+                result.addProperty("resultMessage", "FAIL");
+                result.addProperty("resultCode", "1000");
+            }
+
             return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
@@ -35,7 +48,7 @@ public class LoginApiController {
     @RequestMapping(value = "/api/signUp", method = RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public String insertUser(@RequestParam(value = "id") String id,
-                           @RequestParam(value = "sns") String sns) {
+                             @RequestParam(value = "sns") String sns) {
         JsonObject result = new JsonObject();
 
         try {
@@ -44,10 +57,11 @@ public class LoginApiController {
             result.addProperty("resultMessage", "SUCCESS");
             result.addProperty("resultCode", "0000");
             return result.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.addProperty("resultMessage", "중복이거나 사용할 수 없는 아이디입니다.");
-            result.addProperty("resultCode", "2000");
+        } catch (IndexOutOfBoundsException f) {
+            f.printStackTrace();
+//            result.addProperty("resultMessage", "중복이거나 사용할 수 없는 아이디입니다.");
+            result.addProperty("resultMessage", "신규 유저");
+            result.addProperty("resultCode", "1000");
             return result.toString();
         }
     }
